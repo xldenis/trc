@@ -23,8 +23,9 @@
 
 #![cfg_attr(feature = "dyn_unstable", feature(unsize))]
 #![cfg_attr(feature = "dyn_unstable", feature(coerce_unsized))]
-#![cfg_attr(feature = "dyn_unstable", feature(receiver_trait))]
+// #![cfg_attr(feature = "dyn_unstable", feature(receiver_trait))]
 #![cfg_attr(feature = "dyn_unstable", feature(dispatch_from_dyn))]
+#![cfg_attr(feature = "dyn_unstable", feature(arbitrary_self_types))]
 
 #[deny(clippy::all)]
 #[cfg(test)]
@@ -2111,11 +2112,11 @@ impl<T: ?Sized> UnwindSafe for Trc<T> {}
 impl<T: ?Sized> Unpin for SharedTrc<T> {}
 impl<T: ?Sized> UnwindSafe for SharedTrc<T> {}
 
-unsafe impl<T: Sync + Send> Send for SharedTrc<T> {}
-unsafe impl<T: Sync + Send> Sync for SharedTrc<T> {}
+unsafe impl<T: Sync + Send + ?Sized> Send for SharedTrc<T> {}
+unsafe impl<T: Sync + Send + ?Sized> Sync for SharedTrc<T> {}
 
-unsafe impl<T: Sync + Send> Send for Weak<T> {}
-unsafe impl<T: Sync + Send> Sync for Weak<T> {}
+unsafe impl<T: Sync + Send + ?Sized> Send for Weak<T> {}
+unsafe impl<T: Sync + Send + ?Sized> Sync for Weak<T> {}
 
 fn create_from_iterator_exact<T>(
     iterator: impl Iterator<Item = T> + ExactSizeIterator,
@@ -2194,8 +2195,8 @@ impl<T: Clone + ?Sized> FromIterator<T> for Trc<[T]> {
 #[cfg(feature = "dyn_unstable")]
 impl<T: ?Sized + std::marker::Unsize<U>, U: ?Sized> std::ops::CoerceUnsized<Trc<U>> for Trc<T> {}
 
-#[cfg(feature = "dyn_unstable")]
-impl<T: ?Sized> std::ops::Receiver for Trc<T> {}
+// #[cfg(feature = "dyn_unstable")]
+// impl<T: ?Sized> std::ops::Receiver for Trc<T> {}
 //Because Trc is !DispatchFromDyn, fn _(self: Trc<Self>) cannot be implemented.
 
 #[cfg(feature = "dyn_unstable")]
@@ -2204,8 +2205,8 @@ impl<T: ?Sized + std::marker::Unsize<U>, U: ?Sized> std::ops::CoerceUnsized<Shar
 {
 }
 
-#[cfg(feature = "dyn_unstable")]
-impl<T: ?Sized> std::ops::Receiver for SharedTrc<T> {}
+// #[cfg(feature = "dyn_unstable")]
+// impl<T: ?Sized> std::ops::Receiver for SharedTrc<T> {}
 
 #[cfg(feature = "dyn_unstable")]
 impl<T: ?Sized, U: ?Sized> ops::DispatchFromDyn<SharedTrc<U>> for SharedTrc<T> where
